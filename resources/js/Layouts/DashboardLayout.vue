@@ -1,23 +1,23 @@
 <template>
-    <div class="flex h-screen bg-gray-50">
-      <!-- Sidebar yang bisa di-collapse -->
+    <div class="flex flex-col h-screen bg-gray-50">
+    <!-- Topbar Full Width -->
+    <Topbar @toggle-sidebar="toggleSidebar" />
+
+    <div class="flex flex-1 overflow-hidden">
+      <!-- Sidebar -->
       <Sidebar :is-collapsed="isSidebarCollapsed" />
-  
-      <div class="flex-1 flex flex-col">
-        <!-- Topbar -->
-        <Topbar @toggle-sidebar="toggleSidebar" />
-        
-        <!-- Page Content -->
-        <main class="flex-1 p-4 overflow-y-auto">
-          <slot />
-        </main>
-  
-        <!-- Footer (Optional) -->
-        <Footer class="p-4 bg-white border-t">
-          <p class="text-sm text-gray-500 text-center">© 2024 Your Company. All rights reserved.</p>
-        </Footer>
-      </div>
+
+      <!-- Main Content Area -->
+      <main class="flex-1 p-4 overflow-y-auto">
+        <slot />
+      </main>
     </div>
+    
+    <!-- Footer (Optional) -->
+    <Footer class="p-4 bg-white border-t">
+      <p class="text-sm text-gray-500 text-center">© 2024 Your Company. All rights reserved.</p>
+    </Footer>
+  </div>
   </template>
   
   <script setup>
