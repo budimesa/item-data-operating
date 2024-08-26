@@ -8,7 +8,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
           </svg>
         </button>
-        <span class="ml-4 text-lg font-semibold">Dashboard</span>
+        <span class="ml-4 text-lg font-semibold">CJFI</span>
       </div>
       <div class="flex items-center">
         <!-- Profil dan Notifikasi -->
