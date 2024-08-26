@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Brand;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
 
 class BrandController extends Controller
 {
@@ -30,7 +31,21 @@ class BrandController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'brand_name' => 'required|string|max:255',
+            'brand_code' => 'required|string',
+        ]);
+
+        // Brand::create($request->only('brand_name', 'brand_code'));
+        $data = $request->only('brand_name', 'brand_code');
+        $data['created_by'] = Auth::id(); // Ambil ID pengguna yang sedang login
+    
+        Brand::create($data);
+
+        return response()->json([
+            'message' => 'Brand created successfully!',
+            'brand' => $data,
+        ]);
     }
 
     /**
@@ -70,8 +85,15 @@ class BrandController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Brand $brand)
+    public function destroy($id)
     {
-        //
+        try {
+            $brand = Brand::findOrFail($id);
+            $brand->delete();
+    
+            return response()->json(['message' => 'Brand deleted successfully!'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to delete brand.'], 500);
+        }
     }
 }
