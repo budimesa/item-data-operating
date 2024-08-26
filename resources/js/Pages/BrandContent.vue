@@ -12,7 +12,7 @@
         <div v-if="isModalOpen" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50" @click="closeModal">
           <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md" @click.stop>
             <h2 class="text-xl font-semibold mb-4">Edit Brand</h2>
-            <form @submit.prevent="updateBrand">
+            <form @submit.prevent="update">
               <div class="mb-4">
                 <label for="brand_name" class="block text-sm font-medium text-gray-700">Brand Name</label>
                 <input type="text" id="brand_name" v-model="currentBrand.brand_name" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
@@ -35,7 +35,7 @@
         <div v-if="isCreateModalOpen" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50" @click="closeCreateModal">
           <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md" @click.stop>
             <h2 class="text-xl font-semibold mb-4">Create New Brand</h2>
-            <form @submit.prevent="createBrand">
+            <form @submit.prevent="create">
               <div class="mb-4">
                 <label for="new_brand_name" class="block text-sm font-medium text-gray-700">Brand Name</label>
                 <input type="text" id="new_brand_name" v-model="newBrand.brand_name" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
@@ -57,7 +57,6 @@
   
   <script setup>
 import { defineProps, ref, onMounted } from 'vue';
-import { Inertia } from '@inertiajs/inertia';
 import axios from 'axios';
 import DataTable from '@/Components/DataTable.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
@@ -74,7 +73,7 @@ const columns = ref([
   { key: 'brand_code', label: 'Brand Code' }
 ]);
 
-const fetchBrands = async () => {
+const fetchData = async () => {
   try {
     const response = await axios.get(route('brands.index'));
     brands.value = response.data.brand;
@@ -84,7 +83,7 @@ const fetchBrands = async () => {
 };
 
 onMounted(() => {
-  fetchBrands();
+  fetchData();
 });
 
 const openModal = (postData) => {
@@ -101,7 +100,7 @@ const openCreateModal = () => {
 
 const closeCreateModal = () => (isCreateModalOpen.value = false);
 
-const updateBrand = async () => {
+const update = async () => {
   const url = route('brands.update', currentBrand.value.id);
   try {
     const response = await axios.put(url, {
@@ -109,10 +108,11 @@ const updateBrand = async () => {
       brand_code: currentBrand.value.brand_code,
     });
 
-    const index = brands.value.findIndex(brand => brand.id === response.data.brand.id);
-    if (index !== -1) {
-      brands.value[index] = response.data.brand;
-    }
+    // const index = brands.value.findIndex(brand => brand.id === response.data.brand.id);
+    // if (index !== -1) {
+    //   brands.value[index] = response.data.brand;
+    // }
+    await fetchData(); 
 
     closeModal();
     toast.success("Update brand successfully");
@@ -121,13 +121,13 @@ const updateBrand = async () => {
   }
 };
 
-const createBrand = async () => {
+const create = async () => {
   try {
     const response = await axios.post(route('brands.store'), {
       brand_name: newBrand.value.brand_name,
       brand_code: newBrand.value.brand_code,
     });
-    brands.value.push(response.data.brand);
+    await fetchData()
     closeCreateModal();
     toast.success("Brand created successfully");
   } catch (error) {
@@ -139,7 +139,7 @@ const deleteItem = async (id) => {
   if (confirm('Are you sure you want to delete this item?')) {
     try {
       await axios.delete(`/brands/${id}`);
-      brands.value = brands.value.filter(item => item.id !== id);
+      await fetchData(); 
       toast.success("Item deleted successfully");
     } catch (error) {
       console.error('Failed to delete item:', error);
