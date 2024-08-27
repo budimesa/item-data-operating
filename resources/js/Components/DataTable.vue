@@ -75,7 +75,7 @@
     </div>
 
     <!-- Pagination -->
-    <div class="mt-4 flex justify-between items-center">
+    <!-- <div class="mt-4 flex justify-between items-center">
       <div class="text-sm text-gray-600">
         Showing {{ startItem }} to {{ endItem }} of {{ totalItems }} items
       </div>
@@ -115,7 +115,62 @@
           </svg>
         </button>
       </nav>
+    </div> -->
+
+    <div class="mt-4 flex justify-between items-center">
+      <div class="text-sm text-gray-600">
+        Showing {{ startItem }} to {{ endItem }} of {{ totalItems }} items
+      </div>
+
+      <nav aria-label="Pagination" class="flex items-center space-x-1">
+        <button
+          @click="prevPage"
+          :disabled="currentPage === 1"
+          class="inline-flex items-center px-1.5 py-1.5 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 disabled:opacity-50"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+
+        <button
+          v-if="shouldShowFirstEllipsis"
+          class="px-3 py-1 text-sm font-medium border rounded-md text-gray-500 bg-white hover:bg-gray-50"
+        >
+          ...
+        </button>
+
+        <button
+          v-for="page in paginatedPageNumbers"
+          :key="page"
+          @click="currentPage = page"
+          :class="['px-3 py-1 text-sm font-medium border rounded-md', {
+            'bg-blue-500 text-white': page === currentPage,
+            'bg-white text-gray-500 hover:bg-gray-50': page !== currentPage
+          }]"
+        >
+          {{ page }}
+        </button>
+
+        <button
+          v-if="shouldShowLastEllipsis"
+          class="px-3 py-1 text-sm font-medium border rounded-md text-gray-500 bg-white hover:bg-gray-50"
+        >
+          ...
+        </button>
+
+        <button
+          @click="nextPage"
+          :disabled="currentPage === totalPages"
+          class="inline-flex items-center px-1.5 py-1.5 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 disabled:opacity-50"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </nav>
     </div>
+
   </div>
 </template>
 
@@ -145,6 +200,28 @@ watch(() => props.items, (newItems) => {
 });
 
 const emit = defineEmits(['edit-item', 'delete-item']);
+
+const MAX_VISIBLE_PAGES = 5;
+
+const paginatedPageNumbers = computed(() => {
+  const pages = [];
+  const startPage = Math.max(currentPage.value - Math.floor(MAX_VISIBLE_PAGES / 2), 1);
+  const endPage = Math.min(startPage + MAX_VISIBLE_PAGES - 1, totalPages.value);
+
+  for (let i = startPage; i <= endPage; i++) {
+    pages.push(i);
+  }
+
+  return pages;
+});
+
+const shouldShowFirstEllipsis = computed(() => {
+  return paginatedPageNumbers.value[0] > 1;
+});
+
+const shouldShowLastEllipsis = computed(() => {
+  return paginatedPageNumbers.value[paginatedPageNumbers.value.length - 1] < totalPages.value;
+});
 
 const searchQuery = ref('');
 const currentPage = ref(1);
@@ -193,8 +270,9 @@ const filteredItems = computed(() => {
 });
 
 const paginatedItems = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage.value;
-  const end = start + itemsPerPage.value;
+  const start = (currentPage.value - 1) * parseInt(itemsPerPage.value, 10);
+  const end = start + parseInt(itemsPerPage.value, 10);
+  console.log(start, end); // Debugging
   return filteredItems.value.slice(start, end);
 });
 
@@ -225,15 +303,26 @@ function nextPage() {
 }
 
 function updatePagination() {
-  const totalItems = filteredItems.value.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage.value);
-  if (currentPage.value > totalPages) {
-    currentPage.value = totalPages;
+  const totalItemsCount = filteredItems.value.length;
+  const totalPageCount = Math.ceil(totalItemsCount / itemsPerPage.value);
+
+  if (currentPage.value > totalPageCount) {
+    currentPage.value = totalPageCount;
   }
+
+  // Mengupdate informasi tampilan
+  startItem.value = (currentPage.value - 1) * itemsPerPage.value + 1;
+  endItem.value = Math.min(currentPage.value * itemsPerPage.value, totalItemsCount);
 }
 
 watch(filteredItems, updatePagination);
-watch(itemsPerPage, updatePagination);
+watch(() => itemsPerPage.value, () => {
+  console.log('itemsPerPage:', itemsPerPage.value);
+  console.log('totalPages:', totalPages.value);
+  console.log('currentPage:', currentPage.value);
+  console.log('startItem:', startItem.value);
+  console.log('endItem:', endItem.value);
+});
 
 function exportToExcel() {
   const data = paginatedItems.value.map(item => {
