@@ -51,8 +51,7 @@
               <p class="mb-3 text-gray-500 dark:text-gray-400">Details Item Type the item data.</p>
             </div>
             <div class="hidden p-4 bg-white rounded-lg md:p-8 dark:bg-gray-800" id="series-type" role="tabpanel" aria-labelledby="series-type-tab">
-              <h2 class="mb-3 text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">series Type Content</h2>
-              <p class="mb-3 text-gray-500 dark:text-gray-400">Details series Type the item data.</p>
+                <SeriesTypeContent />
             </div>
             <div class="hidden p-4 bg-white rounded-lg md:p-8 dark:bg-gray-800" id="size" role="tabpanel" aria-labelledby="size-tab">
               <h2 class="mb-3 text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">size Content</h2>
@@ -71,6 +70,7 @@
   <script setup>
   import DashboardLayout from '@/Layouts/DashboardLayout.vue';
   import BrandContent from './BrandContent.vue';
+  import SeriesTypeContent from './SeriesTypeContent.vue';
   import { onMounted } from 'vue';
   
   onMounted(() => {

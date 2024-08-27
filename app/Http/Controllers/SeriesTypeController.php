@@ -13,7 +13,7 @@ class SeriesTypeController extends Controller
     public function index()
     {
         $seriesTypes = SeriesType::all();
-        return response()->json(['seriesType' => $seriesTypes]);
+        return response()->json(['seriesTypes' => $seriesTypes]);
     }
 
     /**
