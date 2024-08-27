@@ -15,7 +15,7 @@ class BrandController extends Controller
     public function index()
     {
         $brands = Brand::all();
-        return response()->json(['brand' => $brands]);
+        return response()->json(['brands' => $brands]);
     }
 
     /**
@@ -69,12 +69,15 @@ class BrandController extends Controller
      */
     public function update(Request $request, Brand $brand)
     {
-        $validated = $request->validate([
+        $request->validate([
             'brand_name' => 'required|string|max:255',
             'brand_code' => 'required|string',
         ]);
     
-        $brand->update($validated);
+        $data = $request->only('brand_name', 'brand_code');
+        $data['updated_by'] = Auth::id();
+
+        $brand->update($data);
     
         return response()->json([
             'message' => 'Brand updated successfully!',

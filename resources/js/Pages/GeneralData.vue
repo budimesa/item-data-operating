@@ -32,34 +32,28 @@
           </ul>
           <div id="defaultTabContent">
             <div class="hidden p-4 bg-white rounded-lg md:p-8 dark:bg-gray-800" id="brand" role="tabpanel" aria-labelledby="brand-tab">
-                <BrandContent />
+              <BrandContent />
             </div>
             <div class="hidden p-4 bg-white rounded-lg md:p-8 dark:bg-gray-800" id="color" role="tabpanel" aria-labelledby="color-tab">
-              <h2 class="mb-5 text-2xl font-extrabold tracking-tight text-gray-900 dark:text-white">Color Content</h2>
-              <!-- List of color -->
+              <ColorContent />
             </div>
             <div class="hidden p-4 bg-white rounded-lg md:p-8 dark:bg-gray-800" id="color-tol" role="tabpanel" aria-labelledby="color-tol-tab">
-              <h2 class="mb-5 text-2xl font-extrabold tracking-tight text-gray-900 dark:text-white">Color Tol Content</h2>
-              <!-- color-tol data -->
+              <ColorTolContent />
             </div>
             <div class="hidden p-4 bg-white rounded-lg md:p-8 dark:bg-gray-800" id="density" role="tabpanel" aria-labelledby="density-tab">
-              <h2 class="mb-3 text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">Density Content</h2>
-              <p class="mb-3 text-gray-500 dark:text-gray-400">Details density the item data.</p>
+              <DensityContent />
             </div>
             <div class="hidden p-4 bg-white rounded-lg md:p-8 dark:bg-gray-800" id="item-type" role="tabpanel" aria-labelledby="item-type-tab">
-              <h2 class="mb-3 text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">Item Type Content</h2>
-              <p class="mb-3 text-gray-500 dark:text-gray-400">Details Item Type the item data.</p>
+              <ItemTypeContent />
             </div>
             <div class="hidden p-4 bg-white rounded-lg md:p-8 dark:bg-gray-800" id="series-type" role="tabpanel" aria-labelledby="series-type-tab">
-                <SeriesTypeContent />
+              <SeriesTypeContent />
             </div>
             <div class="hidden p-4 bg-white rounded-lg md:p-8 dark:bg-gray-800" id="size" role="tabpanel" aria-labelledby="size-tab">
-              <h2 class="mb-3 text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">size Content</h2>
-              <p class="mb-3 text-gray-500 dark:text-gray-400">Details size the item data.</p>
+              <!-- <SizeContent /> -->
             </div>
             <div class="hidden p-4 bg-white rounded-lg md:p-8 dark:bg-gray-800" id="size-tol" role="tabpanel" aria-labelledby="size-tol-tab">
-              <h2 class="mb-3 text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">Size Tol Content</h2>
-              <p class="mb-3 text-gray-500 dark:text-gray-400">Details Size Tol the item data.</p>
+              <!-- <SizeTolContent /> -->
             </div>
           </div>
         </div>
@@ -69,8 +63,14 @@
   
   <script setup>
   import DashboardLayout from '@/Layouts/DashboardLayout.vue';
-  import BrandContent from './BrandContent.vue';
-  import SeriesTypeContent from './SeriesTypeContent.vue';
+  import BrandContent from './Contents/BrandContent.vue';
+  import ColorContent from './Contents/ColorContent.vue';
+  import ColorTolContent from './Contents/ColorTolContent.vue';
+  import DensityContent from './Contents/DensityContent.vue';
+  import ItemTypeContent from './Contents/ItemTypeContent.vue';
+  // import SizeContent from './Contents/SizeContent.vue';
+  // import SizeTolContent from './Contents/SizeTolContent.vue';
+  import SeriesTypeContent from './Contents/SeriesTypeContent.vue';
   import { onMounted } from 'vue';
   
   onMounted(() => {

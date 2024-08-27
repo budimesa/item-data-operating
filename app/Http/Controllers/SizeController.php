@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Size;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class SizeController extends Controller
 {
@@ -13,7 +14,7 @@ class SizeController extends Controller
     public function index()
     {
         $sizes = Size::all();
-        return response()->json(['size' => $sizes]);
+        return response()->json(['sizes' => $sizes]);
     }
 
     /**
@@ -29,7 +30,20 @@ class SizeController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'size_name' => 'required|string|max:255',
+            'size_code' => 'required|string',
+        ]);
+
+        $data = $request->only('size_name', 'size_code');
+        $data['created_by'] = Auth::id(); // Ambil ID pengguna yang sedang login
+    
+        Size::create($data);
+
+        return response()->json([
+            'message' => 'Size created successfully!',
+            'size' => $data,
+        ]);
     }
 
     /**
@@ -53,14 +67,33 @@ class SizeController extends Controller
      */
     public function update(Request $request, Size $size)
     {
-        //
+        $request->validate([
+            'size_name' => 'required|string|max:255',
+            'size_code' => 'required|string',
+        ]);
+
+        $data = $request->only('size_name', 'size_code');
+        $data['updated_by'] = Auth::id();
+        $size->update($data);
+
+        return response()->json([
+            'message' => 'Size updated successfully!',
+            'size' => $size,
+        ]);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Size $size)
+    public function destroy($id)
     {
-        //
+        try {
+            $size = Size::findOrFail($id);
+            $size->delete();
+    
+            return response()->json(['message' => 'Size deleted successfully!'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to delete brand.'], 500);
+        }
     }
 }

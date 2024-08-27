@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\SizeTol;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Auth;
 class SizeTolController extends Controller
 {
     /**
@@ -29,7 +29,20 @@ class SizeTolController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'size_tol_name' => 'required|string|max:255',
+            'size_tol_code' => 'required|string',
+        ]);
+
+        $data = $request->only('size_tol_name', 'size_tol_code');
+        $data['created_by'] = Auth::id(); // Ambil ID pengguna yang sedang login
+    
+        SizeTol::create($data);
+
+        return response()->json([
+            'message' => 'SizeTol created successfully!',
+            'sizeTol' => $data,
+        ]);
     }
 
     /**
@@ -53,14 +66,34 @@ class SizeTolController extends Controller
      */
     public function update(Request $request, SizeTol $sizeTol)
     {
-        //
+        $request->validate([
+            'size_tol_name' => 'required|string|max:255',
+            'size_tol_code' => 'required|string',
+        ]);
+
+        $data = $request->only('size_tol_name', 'size_tol_code');
+        $data['updated_by'] = Auth::id(); // Ambil ID pengguna yang sedang login
+    
+        $sizeTol->update($data);
+
+        return response()->json([
+            'message' => 'SizeTol updated successfully!',
+            'sizeTol' => $data,
+        ]);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(SizeTol $sizeTol)
+    public function destroy($id)
     {
-        //
+        try {
+            $sizeTol = SizeTol::findOrFail($id);
+            $sizeTol->delete();
+    
+            return response()->json(['message' => 'Size Tol deleted successfully!'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to delete brand.'], 500);
+        }
     }
 }

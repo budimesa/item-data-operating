@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ItemType;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Auth;
 class ItemTypeController extends Controller
 {
     /**
@@ -13,7 +13,7 @@ class ItemTypeController extends Controller
     public function index()
     {
         $itemTypes = ItemType::all();
-        return response()->json(['itemType' => $itemTypes]);
+        return response()->json(['itemTypes' => $itemTypes]);
     }
 
     /**
@@ -29,7 +29,20 @@ class ItemTypeController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'type_name' => 'required|string|max:255',
+            'type_code' => 'required|string',
+        ]);
+
+        $data = $request->only('type_name', 'type_code');
+        $data['created_by'] = Auth::id(); // Ambil ID pengguna yang sedang login
+    
+        ItemType::create($data);
+
+        return response()->json([
+            'message' => 'Item Type created successfully!',
+            'itemType' => $data,
+        ]);
     }
 
     /**
@@ -53,14 +66,34 @@ class ItemTypeController extends Controller
      */
     public function update(Request $request, ItemType $itemType)
     {
-        //
+        $request->validate([
+            'type_name' => 'required|string|max:255',
+            'type_code' => 'required|string',
+        ]);
+
+        $data = $request->only('type_name', 'type_code');
+        $data['updated_by'] = Auth::id(); // Ambil ID pengguna yang sedang login
+    
+        $itemType->update($data);
+
+        return response()->json([
+            'message' => 'Item Type updated successfully!',
+            'itemType' => $itemType,
+        ]);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ItemType $itemType)
+    public function destroy($id)
     {
-        //
+        try {
+            $itemType = ItemType::findOrFail($id);
+            $itemType->delete();
+    
+            return response()->json(['message' => 'Item Type deleted successfully!'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to delete brand.'], 500);
+        }
     }
 }

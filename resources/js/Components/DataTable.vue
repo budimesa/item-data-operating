@@ -272,7 +272,6 @@ const filteredItems = computed(() => {
 const paginatedItems = computed(() => {
   const start = (currentPage.value - 1) * parseInt(itemsPerPage.value, 10);
   const end = start + parseInt(itemsPerPage.value, 10);
-  console.log(start, end); // Debugging
   return filteredItems.value.slice(start, end);
 });
 
@@ -317,11 +316,6 @@ function updatePagination() {
 
 watch(filteredItems, updatePagination);
 watch(() => itemsPerPage.value, () => {
-  console.log('itemsPerPage:', itemsPerPage.value);
-  console.log('totalPages:', totalPages.value);
-  console.log('currentPage:', currentPage.value);
-  console.log('startItem:', startItem.value);
-  console.log('endItem:', endItem.value);
 });
 
 function exportToExcel() {

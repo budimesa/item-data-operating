@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class SeriesType extends Model
 {
     use HasFactory;
+    
     protected $table = 'mst_item_series_type';
     protected $fillable = [
         'series_type_name',
