@@ -11,6 +11,8 @@ class Size extends Model
 
     protected $table = 'mst_item_size';
     protected $fillable = [
+        'fg_width',
+        'fg_length',
         'size_name',
         'size_code',
         'created_by',

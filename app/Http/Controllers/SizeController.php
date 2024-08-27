@@ -31,11 +31,13 @@ class SizeController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'fg_width' => 'required|string',
+            'fg_length' => 'required|string',
             'size_name' => 'required|string|max:255',
             'size_code' => 'required|string',
         ]);
 
-        $data = $request->only('size_name', 'size_code');
+        $data = $request->only('size_name', 'size_code', 'fg_width', 'fg_length');
         $data['created_by'] = Auth::id(); // Ambil ID pengguna yang sedang login
     
         Size::create($data);
@@ -68,11 +70,13 @@ class SizeController extends Controller
     public function update(Request $request, Size $size)
     {
         $request->validate([
+            'fg_width' => 'required|string',
+            'fg_length' => 'required|string',
             'size_name' => 'required|string|max:255',
             'size_code' => 'required|string',
         ]);
 
-        $data = $request->only('size_name', 'size_code');
+        $data = $request->only('size_name', 'size_code', 'fg_width', 'fg_length');
         $data['updated_by'] = Auth::id();
         $size->update($data);
 
