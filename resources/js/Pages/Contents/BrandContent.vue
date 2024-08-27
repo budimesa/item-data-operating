@@ -2,8 +2,7 @@
     <div>
       <DataTable :items="brands" :columns="columns" @edit-item="editItem" @delete-item="deleteItem">
         <template #actions>
-          <!-- <PrimaryButton @click="handleAddNew">Add New</PrimaryButton> -->
-          <PrimaryButton @click="openCreateModal">Add New</PrimaryButton>
+          <PrimaryButton @click="createItem">Add New</PrimaryButton>
         </template>
       </DataTable>
   
@@ -53,6 +52,18 @@
         </div>
       </transition>
     </div>
+
+    <div>
+    <button
+      @click="openModal"
+      class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5"
+    >
+      Toggle popup modal
+    </button>
+
+    <PopupModal v-model:modelValue="isModalOpen" />
+  </div>
+
   </template>
   
   <script setup>
@@ -61,6 +72,7 @@ import axios from 'axios';
 import DataTable from '@/Components/DataTable.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { useToast } from 'vue-toastification';
+import PopupModal from '@/Components/PopupModal.vue';
 
 const isModalEditOpen = ref(false);
 const isCreateModalOpen = ref(false);
@@ -72,6 +84,12 @@ const columns = ref([
   { key: 'brand_name', label: 'Brand Name' },
   { key: 'brand_code', label: 'Brand Code' }
 ]);
+
+const isModalOpen = ref(false);
+
+const openModal = () => {
+  isModalOpen.value = true;
+};
 
 const fetchData = async () => {
   try {
@@ -93,7 +111,7 @@ const editItem = (data) => {
 
 const closeEditModal = () => (isModalEditOpen.value = false);
 
-const openCreateModal = () => {
+const createItem = () => {
   newBrand.value = { brand_name: '', brand_code: '' };
   isCreateModalOpen.value = true;
 };

@@ -2,7 +2,7 @@
     <div>
       <DataTable :items="seriesTypes" :columns="columns" @edit-item="editItem" @delete-item="deleteItem">
         <template #actions>
-          <PrimaryButton @click="openCreateModal">Add New</PrimaryButton>
+          <PrimaryButton @click="createItem">Add New</PrimaryButton>
         </template>
       </DataTable>
   
@@ -92,7 +92,7 @@ const editItem = (data) => {
 
 const closeEditModal = () => (isModalEditOpen.value = false);
 
-const openCreateModal = () => {
+const createItem = () => {
   newSeriesType.value = { series_type_name: '', series_type_code: '' };
   isCreateModalOpen.value = true;
 };

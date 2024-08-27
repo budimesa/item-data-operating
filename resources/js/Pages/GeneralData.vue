@@ -50,10 +50,10 @@
               <SeriesTypeContent />
             </div>
             <div class="hidden p-4 bg-white rounded-lg md:p-8 dark:bg-gray-800" id="size" role="tabpanel" aria-labelledby="size-tab">
-              <!-- <SizeContent /> -->
+              <SizeContent />
             </div>
             <div class="hidden p-4 bg-white rounded-lg md:p-8 dark:bg-gray-800" id="size-tol" role="tabpanel" aria-labelledby="size-tol-tab">
-              <!-- <SizeTolContent /> -->
+              <SizeTolContent />
             </div>
           </div>
         </div>
@@ -68,8 +68,8 @@
   import ColorTolContent from './Contents/ColorTolContent.vue';
   import DensityContent from './Contents/DensityContent.vue';
   import ItemTypeContent from './Contents/ItemTypeContent.vue';
-  // import SizeContent from './Contents/SizeContent.vue';
-  // import SizeTolContent from './Contents/SizeTolContent.vue';
+  import SizeContent from './Contents/SizeContent.vue';
+  import SizeTolContent from './Contents/SizeTolContent.vue';
   import SeriesTypeContent from './Contents/SeriesTypeContent.vue';
   import { onMounted } from 'vue';
   

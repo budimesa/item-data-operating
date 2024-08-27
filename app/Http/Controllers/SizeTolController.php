@@ -13,7 +13,7 @@ class SizeTolController extends Controller
     public function index()
     {
         $sizeTols = SizeTol::all();
-        return response()->json(['sizeTol' => $sizeTols]);
+        return response()->json(['sizeTols' => $sizeTols]);
     }
 
     /**

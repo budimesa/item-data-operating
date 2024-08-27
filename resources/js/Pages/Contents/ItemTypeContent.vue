@@ -2,7 +2,7 @@
     <div>
       <DataTable :items="itemTypes" :columns="columns" @edit-item="editItem" @delete-item="deleteItem">
         <template #actions>
-          <PrimaryButton @click="openCreateModal">Add New</PrimaryButton>
+          <PrimaryButton @click="createItem">Add New</PrimaryButton>
         </template>
       </DataTable>
   
@@ -75,7 +75,6 @@ const columns = ref([
 const fetchData = async () => {
   try {
     const response = await axios.get(route('item-types.index'));
-    console.log(response)
     itemTypes.value = response.data.itemTypes;
   } catch (error) {
     console.error('Error fetching itemTypes:', error);
@@ -93,7 +92,7 @@ const editItem = (data) => {
 
 const closeEditModal = () => (isModalEditOpen.value = false);
 
-const openCreateModal = () => {
+const createItem = () => {
   newItemType.value = { type_name: '', type_code: '' };
   isCreateModalOpen.value = true;
 };

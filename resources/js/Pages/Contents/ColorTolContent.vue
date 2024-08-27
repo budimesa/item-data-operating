@@ -2,8 +2,7 @@
     <div>
       <DataTable :items="colorTols" :columns="columns" @edit-item="editItem" @delete-item="deleteItem">
         <template #actions>
-          <!-- <PrimaryButton @click="handleAddNew">Add New</PrimaryButton> -->
-          <PrimaryButton @click="openCreateModal">Add New</PrimaryButton>
+          <PrimaryButton @click="createItem">Add New</PrimaryButton>
         </template>
       </DataTable>
   
@@ -93,7 +92,7 @@ const editItem = (data) => {
 
 const closeEditModal = () => (isModalEditOpen.value = false);
 
-const openCreateModal = () => {
+const createItem = () => {
   newColorTols.value = { color_tol_name: '', color_tol_code: '' };
   isCreateModalOpen.value = true;
 };
