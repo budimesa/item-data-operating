@@ -4,23 +4,7 @@
     <div class="mb-4 flex justify-between items-center">
       <div>
         <slot name="actions"></slot>
-      </div>
-      <div>
-        <label for="entries-per-page" class="mr-2">Entries per page:</label>
-        <select
-          id="entries-per-page"
-          v-model="itemsPerPage"
-          class="border border-gray-300 px-4 py-2 rounded"
-        >
-          <option value="10">10</option>
-          <option value="25">25</option>
-          <option value="50">50</option>
-          <option value="100">100</option>
-        </select>
-      </div>
-      <div>
-        <button @click="exportToExcel" class="me-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Export to Excel</button>
-        <button @click="exportToPDF" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Export to PDF</button>
+        <SecondaryButton @click="exportToExcel" class="ms-2">Export to Excel</SecondaryButton>
       </div>
       <input
         type="text"
@@ -75,48 +59,6 @@
     </div>
 
     <!-- Pagination -->
-    <!-- <div class="mt-4 flex justify-between items-center">
-      <div class="text-sm text-gray-600">
-        Showing {{ startItem }} to {{ endItem }} of {{ totalItems }} items
-      </div>
-
-      <nav aria-label="Pagination" class="flex items-center space-x-1">
-        <button
-          @click="prevPage"
-          :disabled="currentPage === 1"
-          class="inline-flex items-center px-1.5 py-1.5 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 disabled:opacity-50"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
-
-        <div class="flex items-center space-x-1">
-          <button
-            v-for="page in pageNumbers"
-            :key="page"
-            @click="currentPage = page"
-            :class="['px-3 py-1 text-sm font-medium border rounded-md', {
-              'bg-blue-500 text-white': page === currentPage,
-              'bg-white text-gray-500 hover:bg-gray-50': page !== currentPage
-            }]"
-          >
-            {{ page }}
-          </button>
-        </div>
-
-        <button
-          @click="nextPage"
-          :disabled="currentPage === totalPages"
-          class="inline-flex items-center px-1.5 py-1.5 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 disabled:opacity-50"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
-      </nav>
-    </div> -->
-
     <div class="mt-4 flex justify-between items-center">
       <div class="text-sm text-gray-600">
         Showing {{ startItem }} to {{ endItem }} of {{ totalItems }} items
@@ -126,7 +68,7 @@
         <button
           @click="prevPage"
           :disabled="currentPage === 1"
-          class="inline-flex items-center px-1.5 py-1.5 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 disabled:opacity-50"
+          class="inline-flex items-center px-1.5 py-1.5 text-sm font-medium text-gray-500 bg-white hover:bg-gray-50 disabled:opacity-50"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
@@ -135,7 +77,7 @@
 
         <button
           v-if="shouldShowFirstEllipsis"
-          class="px-3 py-1 text-sm font-medium border rounded-md text-gray-500 bg-white hover:bg-gray-50"
+          class="px-3 py-1 text-sm font-medium rounded-md text-gray-500 bg-white hover:bg-gray-50"
         >
           ...
         </button>
@@ -144,8 +86,8 @@
           v-for="page in paginatedPageNumbers"
           :key="page"
           @click="currentPage = page"
-          :class="['px-3 py-1 text-sm font-medium border rounded-md', {
-            'bg-blue-500 text-white': page === currentPage,
+          :class="['px-3 py-1 text-sm font-medium rounded-md', {
+            'bg-gray-800 text-white': page === currentPage,
             'bg-white text-gray-500 hover:bg-gray-50': page !== currentPage
           }]"
         >
@@ -154,7 +96,7 @@
 
         <button
           v-if="shouldShowLastEllipsis"
-          class="px-3 py-1 text-sm font-medium border rounded-md text-gray-500 bg-white hover:bg-gray-50"
+          class="px-3 py-1 text-sm font-medium rounded-md text-gray-500 bg-white hover:bg-gray-50"
         >
           ...
         </button>
@@ -162,12 +104,24 @@
         <button
           @click="nextPage"
           :disabled="currentPage === totalPages"
-          class="inline-flex items-center px-1.5 py-1.5 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 disabled:opacity-50"
+          class="inline-flex items-center px-1.5 py-1.5 text-sm font-medium text-gray-500 bg-white hover:bg-gray-50 disabled:opacity-50"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
           </svg>
         </button>
+        <div>
+        <select
+          id="entries-per-page"
+          v-model="itemsPerPage"
+          class="border border-gray-300 px-4 py-1 rounded"
+        >
+          <option value="10">10</option>
+          <option value="25">25</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+      </div>
       </nav>
     </div>
 
@@ -180,6 +134,7 @@ import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
 
 const props = defineProps({
   items: {

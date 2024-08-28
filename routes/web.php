@@ -6,18 +6,14 @@ use App\Http\Controllers\BrandController;
 use App\Http\Controllers\ColorController;
 use App\Http\Controllers\ColorTolController;
 use App\Http\Controllers\DensityController;
+use App\Http\Controllers\ItemDataController;
 use App\Http\Controllers\ItemTypeController;
 use App\Http\Controllers\SeriesTypeController;
 use App\Http\Controllers\SizeController;
 use App\Http\Controllers\SizeTolController;
 
-
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-
-// Route::get('/{any}', function () {
-//     return Inertia::render('Dashboard');
-// })->where('any', '.*');
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -50,6 +46,7 @@ Route::resource('item-types', ItemTypeController::class);
 Route::resource('series-types', SeriesTypeController::class);
 Route::resource('sizes', SizeController::class);
 Route::resource('size-tols', SizeTolController::class);
+Route::resource('item-data', ItemDataController::class);
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

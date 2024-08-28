@@ -8,7 +8,7 @@
   
       <!-- Modal Edit-->
       <transition name="fade">
-        <div v-if="isModalEditOpen" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50" @click="closeEditModal">
+        <div v-if="isEditModalOpen" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50" @click="closeEditModal">
           <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md" @click.stop>
             <h2 class="text-xl font-semibold mb-4">Edit Series Types</h2>
             <form @submit.prevent="update">
@@ -61,7 +61,7 @@ import DataTable from '@/Components/DataTable.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { useToast } from 'vue-toastification';
 
-const isModalEditOpen = ref(false);
+const isEditModalOpen = ref(false);
 const isCreateModalOpen = ref(false);
 const currentSeriesType = ref({ series_type_name: '', series_type_code: '' });
 const newSeriesType = ref({ series_type_name: '', series_type_code: '' });
@@ -87,10 +87,10 @@ onMounted(() => {
 
 const editItem = (data) => {
   currentSeriesType.value = { ...data };
-  isModalEditOpen.value = true;
+  isEditModalOpen.value = true;
 };
 
-const closeEditModal = () => (isModalEditOpen.value = false);
+const closeEditModal = () => (isEditModalOpen.value = false);
 
 const createItem = () => {
   newSeriesType.value = { series_type_name: '', series_type_code: '' };
