@@ -8,10 +8,13 @@ use Illuminate\Support\Facades\Auth;
 
 class ItemDataController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $itemDatas = ItemData::all();
-        return response()->json(['itemDatas' => $itemDatas]);
+        $perPage = $request->query('perPage', 10); // Number of items per page
+        $page = $request->query('page', 1); // Current page
+        $itemDatas = ItemData::paginate($perPage, ['*'], 'page', $page);
+
+        return response()->json($itemDatas);
     }
 
     public function store(Request $request)
@@ -63,7 +66,7 @@ class ItemDataController extends Controller
 
         return response()->json([
             'message' => 'Item Data created successfully!',
-            'itemData' => $data,
+            'itemDatas' => $data,
         ]);
     }
 
@@ -116,7 +119,7 @@ class ItemDataController extends Controller
 
         return response()->json([
             'message' => 'Item Data updated successfully!',
-            'itemData' => $itemData,
+            'itemDatas' => $itemData,
         ]);
     }
 

@@ -18,7 +18,7 @@
               </div>
               <div class="mb-4">
                 <label for="color_tol_code" class="block text-sm font-medium text-gray-700">Color Tol Code</label>
-                <textarea id="color_tol_code" v-model="curentColorTols.color_tol_code" rows="4" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
+                <input type="text" id="color_tol_code" v-model="curentColorTols.color_tol_code" rows="4" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></input type="text">
               </div>
               <div class="flex justify-end space-x-2">
                 <button type="submit" class="bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Save</button>
@@ -41,7 +41,7 @@
               </div>
               <div class="mb-4">
                 <label for="new_color_tol_code" class="block text-sm font-medium text-gray-700">Color Tol Code</label>
-                <textarea id="new_color_tol_code" v-model="newColorTols.color_tol_code" rows="4" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
+                <input type="text" id="new_color_tol_code" v-model="newColorTols.color_tol_code" rows="4" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></input type="text">
               </div>
               <div class="flex justify-end space-x-2">
                 <button type="submit" class="bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Create</button>

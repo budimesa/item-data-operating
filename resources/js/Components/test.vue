@@ -66,7 +66,7 @@
 
       <nav aria-label="Pagination" class="flex items-center space-x-1">
         <button
-          @click="prevPage"
+          @click="changePage(currentPage - 1)"
           :disabled="currentPage === 1"
           class="inline-flex items-center px-1.5 py-1.5 text-sm font-medium text-gray-500 bg-white hover:bg-gray-50 disabled:opacity-50"
         >
@@ -85,7 +85,7 @@
         <button
           v-for="page in paginatedPageNumbers"
           :key="page"
-          @click="currentPage = page"
+          @click="changePage(page)"
           :class="['px-3 py-1 text-sm font-medium rounded-md', {
             'bg-gray-800 text-white': page === currentPage,
             'bg-white text-gray-500 hover:bg-gray-50': page !== currentPage
@@ -102,7 +102,7 @@
         </button>
 
         <button
-          @click="nextPage"
+          @click="changePage(currentPage + 1)"
           :disabled="currentPage === totalPages"
           class="inline-flex items-center px-1.5 py-1.5 text-sm font-medium text-gray-500 bg-white hover:bg-gray-50 disabled:opacity-50"
         >
@@ -110,21 +110,22 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
           </svg>
         </button>
+
         <div>
-        <select
-          id="entries-per-page"
-          v-model="itemsPerPage"
-          class="border border-gray-300 px-4 py-1 rounded"
-        >
-          <option value="10">10</option>
-          <option value="25">25</option>
-          <option value="50">50</option>
-          <option value="100">100</option>
-        </select>
-      </div>
+          <select
+            id="entries-per-page"
+            v-model="itemsPerPage"
+            class="border border-gray-300 px-4 py-1 rounded"
+            @change="updateItemsPerPage"
+          >
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+        </div>
       </nav>
     </div>
-
   </div>
 </template>
 
@@ -132,162 +133,85 @@
 import { ref, computed, defineEmits, watch } from 'vue';
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
-import SecondaryButton from '@/Components/SecondaryButton.vue';
 
 const props = defineProps({
-  items: {
-    type: Array,
-    default: () => []
-  },
-  columns: {
-    type: Array,
-    default: () => []
-  }
-});
-
-const items = ref(props.items);
-
-watch(() => props.items, (newItems) => {
-  items.value = newItems;
-  updatePagination(); // Update pagination when items change
+  columns: Array,
+  items: Array,
+  totalItems: Number,
+  itemsPerPage: Number,
+  currentPage: Number,
 });
 
 const emit = defineEmits(['edit-item', 'delete-item']);
 
-const MAX_VISIBLE_PAGES = 5;
-
-const paginatedPageNumbers = computed(() => {
-  const pages = [];
-  const startPage = Math.max(currentPage.value - Math.floor(MAX_VISIBLE_PAGES / 2), 1);
-  const endPage = Math.min(startPage + MAX_VISIBLE_PAGES - 1, totalPages.value);
-
-  for (let i = startPage; i <= endPage; i++) {
-    pages.push(i);
-  }
-
-  return pages;
-});
-
-const shouldShowFirstEllipsis = computed(() => {
-  return paginatedPageNumbers.value[0] > 1;
-});
-
-const shouldShowLastEllipsis = computed(() => {
-  return paginatedPageNumbers.value[paginatedPageNumbers.value.length - 1] < totalPages.value;
-});
-
 const searchQuery = ref('');
-const currentPage = ref(1);
-const itemsPerPage = ref(10);
-const sortColumn = ref('');
-const sortDirection = ref('asc');
-
-const columnNames = computed(() => {
-  if (props.columns.length > 0) {
-    return props.columns.map(column => column.key);
-  }
-  return [];
-});
-
-function sortBy(column) {
-  if (sortColumn.value === column) {
-    sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc';
-  } else {
-    sortColumn.value = column;
-    sortDirection.value = 'asc';
-  }
-}
-
-const sortedItems = computed(() => {
-  let sorted = Array.isArray(items.value) ? [...items.value] : [];
-  if (sortColumn.value) {
-    sorted.sort((a, b) => {
-      const aValue = a[sortColumn.value]?.toString().toLowerCase() || '';
-      const bValue = b[sortColumn.value]?.toString().toLowerCase() || '';
-
-      if (aValue < bValue) return sortDirection.value === 'asc' ? -1 : 1;
-      if (aValue > bValue) return sortDirection.value === 'asc' ? 1 : -1;
-      return 0;
-    });
-  }
-  return sorted;
-});
-
-const filteredItems = computed(() => {
-  const query = searchQuery.value.toLowerCase();
-  return Array.isArray(sortedItems.value) ? sortedItems.value.filter(item =>
-    columnNames.value.some(column =>
-      item[column]?.toString().toLowerCase().includes(query)
-    )
-  ) : [];
-});
+const currentPage = ref(props.currentPage);
+const itemsPerPage = ref(props.itemsPerPage);
 
 const paginatedItems = computed(() => {
-  const start = (currentPage.value - 1) * parseInt(itemsPerPage.value, 10);
-  const end = start + parseInt(itemsPerPage.value, 10);
-  return filteredItems.value.slice(start, end);
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  return props.items
+    .filter(item => {
+      return Object.values(item).some(value =>
+        value.toString().toLowerCase().includes(searchQuery.value.toLowerCase())
+      );
+    })
+    .slice(start, start + itemsPerPage.value);
 });
 
-const totalPages = computed(() => Math.ceil(filteredItems.value.length / itemsPerPage.value));
+const totalPages = computed(() => Math.ceil(props.totalItems / itemsPerPage.value));
 
-const pageNumbers = computed(() => {
-  const pages = [];
+const paginatedPageNumbers = computed(() => {
+  const pageNumbers = [];
   for (let i = 1; i <= totalPages.value; i++) {
-    pages.push(i);
+    pageNumbers.push(i);
   }
-  return pages;
+  return pageNumbers;
 });
 
-const totalItems = computed(() => filteredItems.value.length);
 const startItem = computed(() => (currentPage.value - 1) * itemsPerPage.value + 1);
-const endItem = computed(() => Math.min(currentPage.value * itemsPerPage.value, totalItems.value));
+const endItem = computed(() => Math.min(currentPage.value * itemsPerPage.value, props.totalItems));
 
-function prevPage() {
-  if (currentPage.value > 1) {
-    currentPage.value--;
-  }
+const shouldShowFirstEllipsis = computed(() => paginatedPageNumbers.value.length > 5 && currentPage.value > 4);
+const shouldShowLastEllipsis = computed(() => paginatedPageNumbers.value.length > 5 && currentPage.value < totalPages.value - 3);
+
+function changePage(page) {
+  if (page < 1 || page > totalPages.value) return;
+  emit('page-changed', page);
 }
 
-function nextPage() {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value++;
-  }
+function updateItemsPerPage(event) {
+  itemsPerPage.value = parseInt(event.target.value);
+  emit('items-per-page-changed', itemsPerPage.value);
 }
-
-function updatePagination() {
-  const totalItemsCount = filteredItems.value.length;
-  const totalPageCount = Math.ceil(totalItemsCount / itemsPerPage.value);
-
-  if (currentPage.value > totalPageCount) {
-    currentPage.value = totalPageCount;
-  }
-
-  // Mengupdate informasi tampilan
-  startItem.value = (currentPage.value - 1) * itemsPerPage.value + 1;
-  endItem.value = Math.min(currentPage.value * itemsPerPage.value, totalItemsCount);
-}
-
-watch(filteredItems, updatePagination);
-watch(() => itemsPerPage.value, () => {
-});
 
 function exportToExcel() {
-  const data = paginatedItems.value.map(item => {
-    const row = {};
-    props.columns.forEach(col => {
-      row[col.label] = item[col.key];
-    });
-    return row;
-  });
-
-  const ws = XLSX.utils.json_to_sheet(data);
+  const ws = XLSX.utils.json_to_sheet(props.items);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-  const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-  saveAs(new Blob([wbout], { type: 'application/octet-stream' }), 'data.xlsx');
-}
-</script>
+  const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
 
-<style scoped>
-/* Add any custom styles if necessary */
-</style>
+  function s2ab(s) {
+    const buf = new ArrayBuffer(s.length);
+    const view = new Uint8Array(buf);
+    for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xff;
+    return buf;
+  }
+
+  saveAs(new Blob([s2ab(wbout)], { type: 'application/octet-stream' }), 'data.xlsx');
+}
+
+watch(
+  () => props.currentPage,
+  (newPage) => {
+    currentPage.value = newPage;
+  }
+);
+
+watch(
+  () => props.itemsPerPage,
+  (newItemsPerPage) => {
+    itemsPerPage.value = newItemsPerPage;
+  }
+);
+</script>

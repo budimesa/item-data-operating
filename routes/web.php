@@ -46,7 +46,7 @@ Route::resource('item-types', ItemTypeController::class);
 Route::resource('series-types', SeriesTypeController::class);
 Route::resource('sizes', SizeController::class);
 Route::resource('size-tols', SizeTolController::class);
-Route::resource('item-data', ItemDataController::class);
+Route::resource('item-datas', ItemDataController::class);
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

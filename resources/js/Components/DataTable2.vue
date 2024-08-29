@@ -115,6 +115,7 @@
           id="entries-per-page"
           v-model="itemsPerPage"
           class="border border-gray-300 px-4 py-1 rounded"
+          @change="updateItemsPerPage"
         >
           <option value="10">10</option>
           <option value="25">25</option>
@@ -124,7 +125,6 @@
       </div>
       </nav>
     </div>
-
   </div>
 </template>
 
@@ -135,159 +135,137 @@ import * as XLSX from 'xlsx';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 
 const props = defineProps({
-  items: {
-    type: Array,
-    default: () => []
-  },
-  columns: {
-    type: Array,
-    default: () => []
-  }
+  items: Array,
+  columns: Array,
+  totalItems: Number,
+  itemsPerPage: Number,
+  totalPages : Number,
+  currentPage : Number,
 });
 
 const items = ref(props.items);
-
-watch(() => props.items, (newItems) => {
-  items.value = newItems;
-  updatePagination(); // Update pagination when items change
-});
-
-const emit = defineEmits(['edit-item', 'delete-item']);
-
-const MAX_VISIBLE_PAGES = 5;
-
-const paginatedPageNumbers = computed(() => {
-  const pages = [];
-  const startPage = Math.max(currentPage.value - Math.floor(MAX_VISIBLE_PAGES / 2), 1);
-  const endPage = Math.min(startPage + MAX_VISIBLE_PAGES - 1, totalPages.value);
-
-  for (let i = startPage; i <= endPage; i++) {
-    pages.push(i);
-  }
-
-  return pages;
-});
-
-const shouldShowFirstEllipsis = computed(() => {
-  return paginatedPageNumbers.value[0] > 1;
-});
-
-const shouldShowLastEllipsis = computed(() => {
-  return paginatedPageNumbers.value[paginatedPageNumbers.value.length - 1] < totalPages.value;
-});
-
+const totalItems = ref(props.totalItems);
 const searchQuery = ref('');
-const currentPage = ref(1);
-const itemsPerPage = ref(10);
 const sortColumn = ref('');
 const sortDirection = ref('asc');
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
 
-const columnNames = computed(() => {
-  if (props.columns.length > 0) {
-    return props.columns.map(column => column.key);
-  }
-  return [];
-});
+const emit = defineEmits(['edit-item', 'delete-item', 'update:itemsPerPage', 'update:pageChange']);
 
-function sortBy(column) {
-  if (sortColumn.value === column) {
-    sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc';
-  } else {
-    sortColumn.value = column;
-    sortDirection.value = 'asc';
-  }
+// Emit event ketika nilai itemsPerPage berubah
+function updateItemsPerPage() {
+  emit('update:itemsPerPage', itemsPerPage.value);
 }
 
-const sortedItems = computed(() => {
-  let sorted = Array.isArray(items.value) ? [...items.value] : [];
-  if (sortColumn.value) {
-    sorted.sort((a, b) => {
-      const aValue = a[sortColumn.value]?.toString().toLowerCase() || '';
-      const bValue = b[sortColumn.value]?.toString().toLowerCase() || '';
+function updatePagechange() {
+  emit('update:pageChange', currentPage.value);
+}
 
-      if (aValue < bValue) return sortDirection.value === 'asc' ? -1 : 1;
-      if (aValue > bValue) return sortDirection.value === 'asc' ? 1 : -1;
-      return 0;
-    });
-  }
-  return sorted;
+watch(() => props.currentPage, (newValue) => {
+  currentPage.value = newValue;
+});
+
+// Watch untuk menyesuaikan nilai `selectedItemsPerPage` jika prop berubah
+watch(() => props.itemsPerPage, (newValue) => {
+  itemsPerPage.value = newValue;
+});
+
+watch(() => props.totalItems, (newValue) => {
+  totalItems.value = newValue;
+});
+
+watch(() => props.items, (newValue) => {
+  items.value = newValue;
 });
 
 const filteredItems = computed(() => {
-  const query = searchQuery.value.toLowerCase();
-  return Array.isArray(sortedItems.value) ? sortedItems.value.filter(item =>
-    columnNames.value.some(column =>
-      item[column]?.toString().toLowerCase().includes(query)
-    )
-  ) : [];
-});
-
-const paginatedItems = computed(() => {
-  const start = (currentPage.value - 1) * parseInt(itemsPerPage.value, 10);
-  const end = start + parseInt(itemsPerPage.value, 10);
-  return filteredItems.value.slice(start, end);
-});
-
-const totalPages = computed(() => Math.ceil(filteredItems.value.length / itemsPerPage.value));
-
-const pageNumbers = computed(() => {
-  const pages = [];
-  for (let i = 1; i <= totalPages.value; i++) {
-    pages.push(i);
+  let filtered = items.value;
+  if (searchQuery.value) {
+    filtered = filtered.filter(item =>
+      Object.values(item).some(val =>
+        String(val).toLowerCase().includes(searchQuery.value.toLowerCase())
+      )
+    );
   }
-  return pages;
+  return filtered;
 });
 
-const totalItems = computed(() => filteredItems.value.length);
+const sortedItems = computed(() => {
+  if (sortColumn.value) {
+    return filteredItems.value.sort((a, b) => {
+      let comparison = 0;
+      if (a[sortColumn.value] > b[sortColumn.value]) {
+        comparison = 1;
+      } else if (a[sortColumn.value] < b[sortColumn.value]) {
+        comparison = -1;
+      }
+      return sortDirection.value === 'asc' ? comparison : -comparison;
+    });
+  }
+  return filteredItems.value;
+});
+
+const totalPages = computed(() => Math.ceil(totalItems.value / itemsPerPage.value));
+const paginatedItems = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  return sortedItems.value.slice(start, start + itemsPerPage.value);
+});
+
+const paginatedPageNumbers = computed(() => {
+  const maxPagesToShow = 5;
+  const halfRange = Math.floor(maxPagesToShow / 2);
+  let startPage = Math.max(currentPage.value - halfRange, 1);
+  let endPage = Math.min(startPage + maxPagesToShow - 1, totalPages.value);
+
+  if (endPage - startPage < maxPagesToShow - 1) {
+    startPage = Math.max(endPage - maxPagesToShow + 1, 1);
+  }
+
+  return Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
+});
+
+const shouldShowFirstEllipsis = computed(() => currentPage.value > 3);
+const shouldShowLastEllipsis = computed(() => currentPage.value < totalPages.value - 2);
+
 const startItem = computed(() => (currentPage.value - 1) * itemsPerPage.value + 1);
 const endItem = computed(() => Math.min(currentPage.value * itemsPerPage.value, totalItems.value));
 
-function prevPage() {
+const prevPage = () => {
   if (currentPage.value > 1) {
-    currentPage.value--;
+    currentPage.value -= 1;
+    updatePagechange();
   }
-}
+};
 
-function nextPage() {
+const nextPage = () => {
   if (currentPage.value < totalPages.value) {
-    currentPage.value++;
+    currentPage.value += 1;
+    updatePagechange();
   }
-}
+};
 
-function updatePagination() {
-  const totalItemsCount = filteredItems.value.length;
-  const totalPageCount = Math.ceil(totalItemsCount / itemsPerPage.value);
-
-  if (currentPage.value > totalPageCount) {
-    currentPage.value = totalPageCount;
+const sortBy = (key) => {
+  if (sortColumn.value === key) {
+    sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortColumn.value = key;
+    sortDirection.value = 'asc';
   }
+};
 
-  // Mengupdate informasi tampilan
-  startItem.value = (currentPage.value - 1) * itemsPerPage.value + 1;
-  endItem.value = Math.min(currentPage.value * itemsPerPage.value, totalItemsCount);
-}
-
-watch(filteredItems, updatePagination);
-watch(() => itemsPerPage.value, () => {
-});
-
-function exportToExcel() {
-  const data = paginatedItems.value.map(item => {
-    const row = {};
-    props.columns.forEach(col => {
-      row[col.label] = item[col.key];
-    });
-    return row;
-  });
-
-  const ws = XLSX.utils.json_to_sheet(data);
+const exportToExcel = () => {
+  const ws = XLSX.utils.json_to_sheet(filteredItems.value);
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-  const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-  saveAs(new Blob([wbout], { type: 'application/octet-stream' }), 'data.xlsx');
-}
+  XLSX.utils.book_append_sheet(wb, ws, "DataTable");
+  const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+  saveAs(new Blob([wbout], { type: "application/octet-stream" }), "datatable.xlsx");
+};
 </script>
 
 <style scoped>
-/* Add any custom styles if necessary */
+.size-6 {
+  width: 1.5rem;
+  height: 1.5rem;
+}
 </style>
