@@ -19,8 +19,8 @@
       <table class="min-w-full divide-y divide-gray-200 bg-white rounded-lg shadow-md">
         <thead class="bg-gray-100 text-gray-600">
           <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
-            <th v-for="column in columns" :key="column.key" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider cursor-pointer" @click="sortBy(column.key)">
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-separator">No</th>
+            <th v-for="column in columns" :key="column.key" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider cursor-pointer border-separator" @click="sortBy(column.key)">
               {{ column.label }}
               <svg v-if="sortColumn === column.key" :class="{'rotate-180': sortDirection === 'desc'}" class="inline h-3 w-3 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
@@ -30,9 +30,9 @@
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
-          <tr v-for="(item, index) in paginatedItems" :key="item.id">
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ index + 1 + startItem - 1 }}</td>
-            <td v-for="column in columns" :key="column.key" class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ item[column.key] }}</td>
+          <tr v-for="(item, index) in filteredItems" :key="item.id">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 border-separator">{{ index + 1 + startItem - 1 }}</td>
+            <td v-for="column in columns" :key="column.key" class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 border-separator">{{ item[column.key] }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium sticky right-0 bg-white border-r border-gray-200">
               <div class="flex items-center space-x-4">
                 <router-link
@@ -85,7 +85,7 @@
         <button
           v-for="page in paginatedPageNumbers"
           :key="page"
-          @click="currentPage = page"
+          @click="goToPage(page)"
           :class="['px-3 py-1 text-sm font-medium rounded-md', {
             'bg-gray-800 text-white': page === currentPage,
             'bg-white text-gray-500 hover:bg-gray-50': page !== currentPage
@@ -207,10 +207,6 @@ const sortedItems = computed(() => {
 });
 
 const totalPages = computed(() => Math.ceil(totalItems.value / itemsPerPage.value));
-const paginatedItems = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage.value;
-  return sortedItems.value.slice(start, start + itemsPerPage.value);
-});
 
 const paginatedPageNumbers = computed(() => {
   const maxPagesToShow = 5;
@@ -245,6 +241,12 @@ const nextPage = () => {
   }
 };
 
+function goToPage(page) {
+  if (page < 1 || page > totalPages.value) return;
+  currentPage.value = page;
+  updatePagechange();
+}
+
 const sortBy = (key) => {
   if (sortColumn.value === key) {
     sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc';
@@ -267,5 +269,13 @@ const exportToExcel = () => {
 .size-6 {
   width: 1.5rem;
   height: 1.5rem;
+}
+
+.border-separator {
+  border-right: 1px solid #e5e7eb; /* Warna dan ketebalan border tipis */
+}
+
+.border-separator:last-child {
+  border-right: none; /* Hapus border pada kolom terakhir untuk menghindari garis ekstra di akhir tabel */
 }
 </style>
